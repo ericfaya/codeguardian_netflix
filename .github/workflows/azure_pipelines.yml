@@ -2,8 +2,8 @@ name: Process Pull Request
 
 on:
   pull_request:
-    branches:
-      - codeguardian #De momento ejecutamos solo en codeguardian
+    #branches:
+      #- codeguardian #De momento ejecutamos solo en codeguardian
     types: [opened, synchronize, reopened]
 
 jobs:

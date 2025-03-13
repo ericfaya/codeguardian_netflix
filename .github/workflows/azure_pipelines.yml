@@ -47,7 +47,7 @@ jobs:
             ${{ env.GROQAPIKEY }} \
             ${{ env.GROQMODEL }} \
             ${{ env.GITHUB_TOKEN }} \
-            codeguardian \
+            codeguardian_netflix \
             ${{ env.PR_NUMBER }} &  # Ejecuta en segundo plano
           
           echo $! > jar_pid  # Guarda el PID del proceso

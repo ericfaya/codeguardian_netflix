@@ -2,16 +2,13 @@ name: Process Pull Request
 
 on:
   pull_request:
-    #branches:
-      #- codeguardian #De momento ejecutamos solo en codeguardian
     types: [opened, synchronize, reopened]
 
 jobs:
   process-pull-request:
     runs-on: ubuntu-latest
-    
+
     env:
-      # Definir las dos variables de entorno que necesitas
       GROQAPIKEY: ${{ secrets.GROQAPIKEY }} 
       GROQMODEL: ${{ secrets.GROQMODEL }}
       GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }} 
@@ -26,10 +23,6 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Check JAR permissions
-        run: |
-          ls -l netflix-guillem-0.1-SNAPSHOT.jar
-
       - name: Get Pull Request Info
         id: pr_info
         run: |
@@ -38,29 +31,31 @@ jobs:
           echo "Número de PR: ${{ github.event.pull_request.number }}" 
           echo "Branch: ${{ github.event.pull_request.head.ref }}"
 
-      - name: Check JAR existence
-        run: ls -l netflix-guillem-0.1-SNAPSHOT.jar
+      - name: Check if JAR exists
+        run: |
+          if [[ ! -f netflix-guillem-0.1-SNAPSHOT.jar ]]; then
+            echo "Error: JAR not found!"
+            exit 1
+          fi
+
+      - name: Ensure JAR has execution permissions
+        run: chmod +x netflix-guillem-0.1-SNAPSHOT.jar
 
       - name: Run JAR with Pull Request Information
         run: |
-          # Asumiendo que el JAR está en el repositorio o lo descargas en un paso previo
-          # Ajusta la ruta a tu JAR según sea necesario
-            java -jar netflix-guillem-0.1-SNAPSHOT.jar  \
+          set -e
+          java -jar netflix-guillem-0.1-SNAPSHOT.jar \
             ${{ env.GROQAPIKEY }} \
             ${{ env.GROQMODEL }} \
             ${{ env.GITHUB_TOKEN }} \
             codeguardian \
-            ${{ env.PR_NUMBER }}
-      #
-      # Opcionalmente, puedes agregar un paso para verificar el resultado del JAR
+            ${{ env.PR_NUMBER }} | tee output.log
+
       - name: Verify JAR Execution
         run: |
-          # Aquí puedes verificar si el JAR se ejecutó correctamente
-          # Por ejemplo, comprobar un archivo de salida o código de retorno
-          if [ $? -eq 0 ]; then
-            echo "JAR ejecutado exitosamente"
-            exit 0
-          else
-            echo "Error en la ejecución del JAR"
+          if grep -q "ERROR" output.log; then
+            echo "Error detected in JAR execution"
             exit 1
+          else
+            echo "JAR executed successfully"
           fi

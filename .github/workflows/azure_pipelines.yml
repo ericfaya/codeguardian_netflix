@@ -37,17 +37,17 @@ jobs:
 
       - name: Check if JAR exists
         run: |
-          if [[ ! -f netflix-guillem-0.1-SNAPSHOT.jar ]]; then
+          if [[ ! -fcodeguardian-0.0.1-SNAPSHOT.jar ]]; then
             echo "Error: JAR not found!"
             exit 1
           fi
 
       - name: Ensure JAR has execution permissions
-        run: chmod +x netflix-guillem-0.1-SNAPSHOT.jar
+        run: chmod +x codeguardian-0.0.1-SNAPSHOT.jar
 
       - name: Run JAR in background and capture logs
         run: |
-          java -jar netflix-guillem-0.1-SNAPSHOT.jar \
+          java -jar codeguardian-0.0.1-SNAPSHOT.jar \
             ${{ env.GROQAPIKEY }} \
             ${{ env.GROQMODEL }} \
             ${{ env.GITHUB_TOKEN }} \

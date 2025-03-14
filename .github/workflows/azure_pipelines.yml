@@ -1,0 +1,64 @@
+name: Process Pull Request
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write  # Permiso necesario para comentar en la PR
+
+jobs:
+  process-pull-request:
+    runs-on: ubuntu-latest
+
+    env:
+      GROQAPIKEY: ${{ secrets.GROQAPIKEY }} 
+      GROQMODEL: ${{ secrets.GROQMODEL }}
+      GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Get Pull Request Info
+        id: pr_info
+        run: |
+          echo "PR_NUMBER=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+          echo "PR_BRANCH=${{ github.event.pull_request.head.ref }}" >> $GITHUB_ENV
+          echo "Número de PR: ${{ github.event.pull_request.number }}" 
+          echo "Branch: ${{ github.event.pull_request.head.ref }}"
+
+      - name: Check if JAR exists
+        run: |
+          if [[ ! -f netflix-guillem-0.1-SNAPSHOT.jar ]]; then
+            echo "Error: JAR not found!"
+            exit 1
+          fi
+
+      - name: Ensure JAR has execution permissions
+        run: chmod +x netflix-guillem-0.1-SNAPSHOT.jar
+
+      - name: Run JAR in background and capture logs
+        run: |
+          java -jar netflix-guillem-0.1-SNAPSHOT.jar \
+            ${{ env.GROQAPIKEY }} \
+            ${{ env.GROQMODEL }} \
+            ${{ env.GITHUB_TOKEN }} \
+            codeguardian_netflix \
+            ${{ env.PR_NUMBER }} > logs.txt 2>&1 &  # Captura logs en un archivo
+          
+          echo $! > jar_pid  # Guarda el PID del proceso
+          sleep 50  # Espera 50 segundos para que el JAR haga su trabajo
+
+          kill $(cat jar_pid)  # Mata el proceso
+          rm jar_pid  # Limpia el archivo del PID
+
+      - name: Debug JAR Output
+        run: cat logs.txt || echo "No logs generated"

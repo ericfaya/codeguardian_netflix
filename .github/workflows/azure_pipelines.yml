@@ -4,6 +4,10 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
+permissions:
+  contents: read
+  pull-requests: write  # Permiso necesario para comentar en la PR
+
 jobs:
   process-pull-request:
     runs-on: ubuntu-latest
@@ -11,7 +15,7 @@ jobs:
     env:
       GROQAPIKEY: ${{ secrets.GROQAPIKEY }} 
       GROQMODEL: ${{ secrets.GROQMODEL }}
-      GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }} 
+      GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
 
     steps:
       - name: Checkout code
@@ -41,20 +45,20 @@ jobs:
       - name: Ensure JAR has execution permissions
         run: chmod +x netflix-guillem-0.1-SNAPSHOT.jar
 
-      - name: Run JAR in background and kill after timeout
+      - name: Run JAR in background and capture logs
         run: |
           java -jar netflix-guillem-0.1-SNAPSHOT.jar \
             ${{ env.GROQAPIKEY }} \
             ${{ env.GROQMODEL }} \
             ${{ env.GITHUB_TOKEN }} \
             codeguardian_netflix \
-            ${{ env.PR_NUMBER }} &  # Ejecuta en segundo plano
+            ${{ env.PR_NUMBER }} > logs.txt 2>&1 &  # Captura logs en un archivo
           
           echo $! > jar_pid  # Guarda el PID del proceso
-          sleep 10  # Espera 10 segundos para que el JAR haga su trabajo
+          sleep 50  # Espera 10 segundos para que el JAR haga su trabajo
 
           kill $(cat jar_pid)  # Mata el proceso
           rm jar_pid  # Limpia el archivo del PID
 
-      - name: Verify JAR Execution
-        run: echo "JAR executed successfully and was stopped after timeout."
+      - name: Debug JAR Output
+        run: cat logs.txt || echo "No logs generated"

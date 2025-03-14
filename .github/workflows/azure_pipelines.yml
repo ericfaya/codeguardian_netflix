@@ -27,12 +27,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
-
-      - name: Verify config.properties exists
-        run: |
-          ls -l config.properties
-          cat config.properties  # Opcional, para verificar su contenido
-
+          
       - name: Check JAR permissions
         run: |
           ls -l codeguardian-0.0.1-SNAPSHOT.jar

@@ -62,3 +62,4 @@ jobs:
 
       - name: Debug JAR Output
         run: cat logs.txt || echo "No logs generated"
+        

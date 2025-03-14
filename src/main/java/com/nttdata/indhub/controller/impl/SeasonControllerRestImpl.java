@@ -28,38 +28,130 @@ import com.nttdata.indhub.util.constant.RestConstantsUtils;
 @RequiredArgsConstructor
 public class SeasonControllerRestImpl implements SeasonControllerRest {
 
+  private final SeasonService seasonService;
+
   @Override
-  public NetflixResponse<D4iPageRest<PostSeasonRest>> getAllSeasons(int page, int size, Pageable pageable) throws NetflixException {
-    return null;
+  @ResponseStatus(HttpStatus.OK)
+  @GetMapping(value = RestConstantsUtils.RESOURCE_SEASONS, produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(summary = "getAllSeasons", description = "Get all Season paginated")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200"),
+      @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
+      @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+  })
+  public NetflixResponse<D4iPageRest<PostSeasonRest>> getAllSeasons(
+      @RequestParam(defaultValue = CommonConstantsUtils.ZERO) final int page,
+      @RequestParam(defaultValue = CommonConstantsUtils.TWENTY) final int size,
+      @Parameter(hidden = true) final Pageable pageable)
+      throws NetflixException {
+    final Page<PostSeasonRest> postSeasonRestList = seasonService.getAllSeasons(pageable);
+    return new NetflixResponse<>(HttpStatus.OK.toString(),
+        String.valueOf(HttpStatus.OK.value()),
+        CommonConstantsUtils.OK,
+        new D4iPageRest<>(postSeasonRestList.getContent().toArray(PostSeasonRest[]::new),
+            new D4iPaginationInfo(postSeasonRestList.getNumber(),
+                pageable.getPageSize(),
+                postSeasonRestList.getTotalPages())));
   }
 
   @Override
-  public NetflixResponse<PostSeasonRest> getSeasonById(Long id) throws NetflixException {
-    return null;
+  @ResponseStatus(HttpStatus.OK)
+  @GetMapping(value = RestConstantsUtils.RESOURCE_SEASONS + RestConstantsUtils.RESOURCE_SEASON_ID, produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(summary = "getSeasonById", description = "Get Season by id")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200"),
+      @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
+      @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+  })
+  public NetflixResponse<PostSeasonRest> getSeasonById(final Long id) throws NetflixException {
+    final PostSeasonRest postSeasonRest = seasonService.getSeasonById(id);
+    return new NetflixResponse<>(HttpStatus.OK.toString(),
+        String.valueOf(HttpStatus.OK.value()),
+        CommonConstantsUtils.OK, postSeasonRest);
   }
 
   @Override
-  public NetflixResponse<PostSeasonRest> createSeason(PostSeasonRest season) throws NetflixException {
-    return null;
+  @ResponseStatus(HttpStatus.OK)
+  @PostMapping(value = RestConstantsUtils.RESOURCE_SEASONS, produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(summary = "createSeason", description = "Create new Season")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200"),
+      @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
+      @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+  })
+  public NetflixResponse<PostSeasonRest> createSeason(
+      @RequestBody final PostSeasonRest season) throws NetflixException {
+    final PostSeasonRest seasonRest = seasonService.createSeason(season);
+    return new NetflixResponse<>(HttpStatus.OK.toString(),
+        String.valueOf(HttpStatus.OK.value()),
+        CommonConstantsUtils.OK, seasonRest);
   }
 
   @Override
-  public NetflixResponse<PostSeasonRest> updateSeason(PostSeasonRest season) throws NetflixException {
-    return null;
+  @ResponseStatus(HttpStatus.OK)
+  @PutMapping(value = RestConstantsUtils.RESOURCE_SEASONS + RestConstantsUtils.RESOURCE_SEASON_ID, produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(summary = "updateSeason", description = "Update an existing Season")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200"),
+      @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
+      @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+  })
+  public NetflixResponse<PostSeasonRest> updateSeason(@RequestBody final PostSeasonRest season) throws NetflixException {
+    final PostSeasonRest seasonRest = seasonService.updateSeason(season, season.getId());
+    return new NetflixResponse<>(HttpStatus.OK.toString(),
+        String.valueOf(HttpStatus.OK.value()),
+        CommonConstantsUtils.OK, seasonRest);
   }
 
   @Override
-  public NetflixResponse<Object> deleteSeason(Long id) throws NetflixException {
-    return null;
+  @ResponseStatus(HttpStatus.OK)
+  @DeleteMapping(value = RestConstantsUtils.RESOURCE_SEASONS + RestConstantsUtils.RESOURCE_SEASON_ID, produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(summary = "deleteSeason", description = "Delete an existing Season")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200"),
+      @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
+      @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+  })
+  public NetflixResponse<Object> deleteSeason(@RequestParam final Long id) throws NetflixException {
+    seasonService.deleteSeason(id);
+    return new NetflixResponse<>(HttpStatus.OK.toString(),
+        String.valueOf(HttpStatus.OK.value()),
+        CommonConstantsUtils.OK);
   }
 
   @Override
-  public NetflixResponse<SeasonRest> addChapterToSeason(Long seasonId, Long chapterId) throws NetflixException {
-    return null;
+  @ResponseStatus(HttpStatus.OK)
+  @PostMapping(value = RestConstantsUtils.RESOURCE_SEASONS + RestConstantsUtils.RESOURCE_SEASON_ID
+      + RestConstantsUtils.RESOURCE_CHAPTERS + RestConstantsUtils.RESOURCE_CHAPTER_ID + RestConstantsUtils.ADD
+      , produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(summary = "addChapterToSeason", description = "Add a Chapter to Season")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200"),
+      @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
+      @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+  })
+  public NetflixResponse<SeasonRest> addChapterToSeason(@RequestParam final Long seasonId, @RequestParam final Long chapterId) throws NetflixException {
+    final SeasonRest seasonRest = seasonService.addChapterToSeason(seasonId, chapterId);
+    return new NetflixResponse<>(HttpStatus.OK.toString(),
+        String.valueOf(HttpStatus.OK.value()),
+        CommonConstantsUtils.OK, seasonRest);
   }
 
   @Override
-  public NetflixResponse<SeasonRest> deleteChapterOfSeason(Long seasonId, Long chapterId) throws NetflixException {
-    return null;
+  @ResponseStatus(HttpStatus.OK)
+  @PostMapping(value = RestConstantsUtils.RESOURCE_SEASONS + RestConstantsUtils.RESOURCE_SEASON_ID
+      + RestConstantsUtils.RESOURCE_CHAPTERS + RestConstantsUtils.RESOURCE_CHAPTER_ID + RestConstantsUtils.DELETE
+      , produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(summary = "deleteChapterToSeason", description = "Delete a Chapter of Season")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200"),
+      @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
+      @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+  })
+  public NetflixResponse<SeasonRest> deleteChapterOfSeason(@RequestParam final Long seasonId, @RequestParam final Long chapterId) throws NetflixException {
+    final SeasonRest seasonRest = seasonService.deleteChapterOfSeason(seasonId, chapterId);
+    return new NetflixResponse<>(HttpStatus.OK.toString(),
+        String.valueOf(HttpStatus.OK.value()),
+        CommonConstantsUtils.OK, seasonRest);
   }
 }

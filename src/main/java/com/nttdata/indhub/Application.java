@@ -63,6 +63,8 @@ public class Application {
 
       switch (file.getStatus().toLowerCase()) {
         case "added":
+          System.out.println("Added");
+
           Content content = gitHubConnector.getFileContent(owner, repoId, file.getFilename(), prSha, githubToken);
           String downloadUrl = content.getDownloadUrl();
 
@@ -78,6 +80,7 @@ public class Application {
           break;
         case "modified":
         case "changed":
+          System.out.println("Changed");
           Content content2 = gitHubConnector.getFileContent(owner, repoId, file.getFilename(), prSha, githubToken);
           String downloadUrl2 = content2.getDownloadUrl();
           if (downloadUrl2 == null || downloadUrl2.isEmpty()) {
@@ -85,6 +88,9 @@ public class Application {
           } else {
             oldClass = downloadFromUrl(content2.getDownloadUrl(), "current_" + file.getFilename());
             newClass = downloadFromUrl(gitHubConnector.getFileContent(owner, repoId, file.getFilename(), prShaBase, githubToken).getDownloadUrl(), "previous_" + file.getFilename());
+            System.out.println("Contenido antiguo: " + oldClass.length());
+            System.out.println("Contenido nuevo: " + newClass.length());
+
           }
 
           break;

@@ -37,7 +37,7 @@ jobs:
 
       - name: Check if JAR exists
         run: |
-          if [[ ! -fcodeguardian-0.0.1-SNAPSHOT.jar ]]; then
+          if [[ ! -f codeguardian-0.0.1-SNAPSHOT.jar ]]; then
             echo "Error: JAR not found!"
             exit 1
           fi

@@ -55,11 +55,10 @@ jobs:
             ${{ env.PR_NUMBER }} > logs.txt 2>&1 &  # Captura logs en un archivo
           
           echo $! > jar_pid  # Guarda el PID del proceso
-          sleep 100  # Espera 100 segundos para que el JAR haga su trabajo
+          sleep 50  # Espera 50 segundos para que el JAR haga su trabajo
 
           kill $(cat jar_pid)  # Mata el proceso
           rm jar_pid  # Limpia el archivo del PID
 
       - name: Debug JAR Output
         run: cat logs.txt || echo "No logs generated"
-        

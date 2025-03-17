@@ -11,11 +11,14 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PostChapterRest {
 
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
   private Integer number;
 
+  @NotBlank
   private String name;
 
-  private Double duration;
+  private BigDecimal duration;
 }

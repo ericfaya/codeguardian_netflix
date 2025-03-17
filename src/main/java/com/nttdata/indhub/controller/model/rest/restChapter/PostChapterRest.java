@@ -1,9 +1,15 @@
 package com.nttdata.indhub.controller.model.rest.restChapter;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+/**
+ * Esta clase representa un capítulo que se puede publicar a través de una API REST.
+ * Contiene información sobre el capítulo, incluyendo su ID, número, nombre y duración.
+ */
 
 @Data
 @AllArgsConstructor
@@ -11,14 +17,13 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PostChapterRest {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @JsonProperty
   private Long id;
 
   private Integer number;
 
-  @NotBlank
+  @NotNull
   private String name;
 
-  private BigDecimal duration;
+  private Long duration;
 }

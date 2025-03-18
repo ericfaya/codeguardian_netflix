@@ -37,8 +37,10 @@ jobs:
         run: |
           echo "PR_NUMBER=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
           echo "PR_BRANCH=${{ github.event.pull_request.head.ref }}" >> $GITHUB_ENV
+          echo "REPO_OWNER=${{ github.repository_owner }}" >> $GITHUB_ENV
           echo "Número de PR: ${{ github.event.pull_request.number }}" 
           echo "Branch: ${{ github.event.pull_request.head.ref }}"
+          echo "Owner: ${{ github.repository_owner }}" 
 
       - name: Check JAR existence
         run: ls -l codeguardian-0.0.1-SNAPSHOT.jar

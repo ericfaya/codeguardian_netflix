@@ -39,27 +39,13 @@ public class ChapterControllerRestImpl implements ChapterControllerRest {
       @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
       @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
   })
-  public NetflixResponse<D4iPageRest<PostChapterRest>> getAllChapters(
-      @RequestParam(defaultValue = CommonConstantsUtils.ZERO) final int page,
-      @RequestParam(defaultValue = CommonConstantsUtils.TWENTY) final int size,
-      @Parameter(hidden = true) final Pageable pageable)
-      throws NetflixException {
-    final Page<PostChapterRest> postChapterRestList = chapterService.getAllChapters(pageable);
-    return new NetflixResponse<>(HttpStatus.OK.toString(),
-        String.valueOf(HttpStatus.OK.value()),
-        CommonConstantsUtils.OK,
-        new D4iPageRest<>(postChapterRestList.getContent().toArray(PostChapterRest[]::new),
-            new D4iPaginationInfo(postChapterRestList.getNumber(),
-                pageable.getPageSize(),
-                postChapterRestList.getTotalPages())));
-  }
+
 
   @Override
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = RestConstantsUtils.RESOURCE_CHAPTERS + RestConstantsUtils.RESOURCE_CHAPTER_ID, produces = MediaType.APPLICATION_JSON_VALUE)
   @Operation(summary = "getChapterById", description = "Get Chapters by id")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
       @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
   })
@@ -76,7 +62,6 @@ public class ChapterControllerRestImpl implements ChapterControllerRest {
   @Operation(summary = "createChapter", description = "Create new Chapter")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200"),
-      @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
       @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
   })
   public NetflixResponse<PostChapterRest> createChapter(
@@ -128,7 +113,6 @@ public class ChapterControllerRestImpl implements ChapterControllerRest {
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200"),
       @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
-      @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
   })
   public NetflixResponse<ChapterRest> addActorToChapter(@RequestParam final Long actorId, @RequestParam final Long chapterId) throws NetflixException {
     final ChapterRest chapterRest = chapterService.addActorToChapter(actorId, chapterId);
@@ -145,7 +129,6 @@ public class ChapterControllerRestImpl implements ChapterControllerRest {
   @Operation(summary = "deleteActorOfChapter", description = "Delete an Actor of Chapter")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200"),
-      @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
       @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
   })
   public NetflixResponse<ChapterRest> deleteActorOfChapter(@RequestParam final Long actorId, @RequestParam final Long chapterId) throws NetflixException {

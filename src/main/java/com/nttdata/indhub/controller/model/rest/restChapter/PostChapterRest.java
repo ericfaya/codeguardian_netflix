@@ -14,7 +14,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class _pSOt_chAptEr_reSt {
+public class PostChapterRest {
 
   @Setter(value = AccessLevel.NONE)
   @JsonProperty

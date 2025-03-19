@@ -6,7 +6,7 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write  # Permiso necesario para comentar en la PR
+  pull-requests: write  
 
 jobs:
   process-pull-request:
@@ -16,7 +16,6 @@ jobs:
       GROQAPIKEY: ${{ secrets.GROQAPIKEY }} 
       GROQMODEL: ${{ secrets.GROQMODEL }}
       GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
-
   
     steps:
       - name: Checkout code

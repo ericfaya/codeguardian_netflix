@@ -67,11 +67,10 @@ jobs:
 
             echo "Adding review comment to $FILE at line $LINE: $COMMENT"
 
-            gh pr review $PR_NUMBER --repo $REPO --comment --body "$COMMENT" --path "$FILE" --line $LINE
+            gh pr comment $PR_NUMBER --repo $REPO --body "*$FILE (Línea $LINE):* $COMMENT"
           done
-        env:
-          GH_TOKEN: ${{ secrets.TOKEN_GITHUB }}
-
+  env:
+    GH_TOKEN: ${{ secrets.TOKEN_GITHUB }}
       # Opcionalmente, puedes agregar un paso para verificar el resultado del JAR
       - name: Verify JAR Execution
         run: |

@@ -54,6 +54,23 @@ jobs:
             ${{ env.GITHUB_TOKEN }} \
             codeguardian_netflix \
             ${{ env.PR_NUMBER }}
+            
+      - name: Add dynamic review comments
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          REPO=${{ github.repository }}
+
+          cat groq_output.json | jq -c '.[]' | while read -r item; do
+            FILE=$(echo $item | jq -r '.file')
+            LINE=$(echo $item | jq -r '.line')
+            COMMENT=$(echo $item | jq -r '.comment')
+
+            echo "Adding review comment to $FILE at line $LINE: $COMMENT"
+
+            gh pr review $PR_NUMBER --repo $REPO --comment --body "$COMMENT" --path "$FILE" --line $LINE
+          done
+        env:
+          GH_TOKEN: ${{ secrets.TOKEN_GITHUB }}
 
       # Opcionalmente, puedes agregar un paso para verificar el resultado del JAR
       - name: Verify JAR Execution

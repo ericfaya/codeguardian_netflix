@@ -55,7 +55,7 @@ jobs:
             codeguardian_netflix \
             ${{ env.PR_NUMBER }}
             
-            
+
       - name: Add dynamic review comments
         run: |
           PR_NUMBER=${{ github.event.pull_request.number }}
@@ -70,8 +70,9 @@ jobs:
 
             gh pr comment $PR_NUMBER --repo $REPO --body "*$FILE (Línea $LINE):* $COMMENT"
           done
-  env:
-    GH_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+        env:
+          GH_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+          
       # Opcionalmente, puedes agregar un paso para verificar el resultado del JAR
       - name: Verify JAR Execution
         run: |

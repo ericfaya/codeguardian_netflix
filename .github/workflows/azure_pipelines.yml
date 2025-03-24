@@ -61,6 +61,9 @@ jobs:
           PR_NUMBER=${{ github.event.pull_request.number }}
           REPO=${{ github.repository }}
 
+          echo "Contenido de groq_ouput.json: "
+          cat groq_output.json
+
           cat groq_output.json | jq -c '.[]' | while read -r item; do
             FILE=$(echo $item | jq -r '.file')
             LINE=$(echo $item | jq -r '.line')

@@ -64,6 +64,11 @@ jobs:
           echo "Contenido de groq_ouput.json: "
           cat groq_output.json
 
+          if ! jq empty groq_output.json 2>/dev/null; then
+            echo "❌ groq_output.json no es un JSON válido. Abortando."
+            exit 1
+          fi
+
           cat groq_output.json | jq -c '.[]' | while read -r item; do
             FILE=$(echo $item | jq -r '.file')
             LINE=$(echo $item | jq -r '.line')

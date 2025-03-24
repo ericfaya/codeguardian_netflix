@@ -64,6 +64,11 @@ jobs:
           echo "Contenido de groq_ouput.json: "
           cat groq_output.json
 
+          if [ ! -s groq_output.json ]; then
+            echo "❌ groq_output.json está vacío. Abortando."
+            exit 1
+          fi
+
           if ! jq empty groq_output.json 2>/dev/null; then
             echo "❌ groq_output.json no es un JSON válido. Abortando."
             exit 1

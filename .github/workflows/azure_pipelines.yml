@@ -61,7 +61,7 @@ jobs:
           PR_NUMBER=${{ github.event.pull_request.number }}
           REPO=${{ github.repository }}
 
-          echo "Contenido de groq_ouput.json: "
+          echo "Contenido de groq_output.json: "
           cat groq_output.json
 
           if [ ! -s groq_output.json ]; then
@@ -74,14 +74,15 @@ jobs:
             exit 1
           fi
 
-          cat groq_output.json | jq -c '.[]' | while read -r item; do
-            FILE=$(echo $item | jq -r '.file')
-            LINE=$(echo $item | jq -r '.line')
-            COMMENT=$(echo $item | jq -r '.comment')
-
-            echo "Adding review comment to $FILE at line $LINE: $COMMENT"
-
-            gh pr comment $PR_NUMBER --repo $REPO --body "*$FILE (Línea $LINE):* $COMMENT"
+          jq -c '.[]' groq_output.json | while read -r fileEntry; do
+            FILE=$(echo "$fileEntry" | jq -r '.file')
+            echo "Procesando archivo: $FILE"
+            echo "$fileEntry" | jq -c '.comments[]' | while read -r comment; do
+              LINE=$(echo "$comment" | jq -r '.line')
+              BODY=$(echo "$comment" | jq -r '.body')
+              echo "Comentando $FILE en línea $LINE: $BODY"
+              gh pr comment $PR_NUMBER --repo $REPO --body "$FILE (Línea $LINE): $BODY"
+            done
           done
         env:
           GH_TOKEN: ${{ secrets.TOKEN_GITHUB }}

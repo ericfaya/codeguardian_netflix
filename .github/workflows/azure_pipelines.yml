@@ -56,35 +56,14 @@ jobs:
             ${{ env.PR_NUMBER }} 
             
 
-      - name: Add dynamic review comments
-        run: |
-          PR_NUMBER=${{ github.event.pull_request.number }}
-          REPO=${{ github.repository }}
+      - name: Instalar dependencias para diff parsing
+        run: pip install --upgrade pip
 
-          echo "Contenido de groq_output.json: "
-          cat groq_output.json
-
-          if [ ! -s groq_output.json ]; then
-            echo "❌ groq_output.json está vacío. Abortando."
-            exit 1
-          fi
-
-          if ! jq empty groq_output.json 2>/dev/null; then
-            echo "❌ groq_output.json no es un JSON válido. Abortando."
-            exit 1
-          fi
-
-          jq -c '.[]' groq_output.json | while read -r fileEntry; do
-            FILE=$(echo "$fileEntry" | jq -r '.file')
-            echo "Procesando archivo: $FILE"
-            echo "$fileEntry" | jq -c '.comments[]' | while read -r comment; do
-              LINE=$(echo "$comment" | jq -r '.line')
-              BODY=$(echo "$comment" | jq -r '.body')
-              echo "Comentando $FILE en línea $LINE: $BODY"
-              gh pr comment $PR_NUMBER --repo $REPO --body "$FILE (Línea $LINE): $BODY"
-            done
-          done
+      - name: Añadir comentarios de revisión con posiciones reales
+        run: python add_review_comments.py
         env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
           GH_TOKEN: ${{ secrets.TOKEN_GITHUB }}
           
       # Opcionalmente, puedes agregar un paso para verificar el resultado del JAR

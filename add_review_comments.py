@@ -51,8 +51,8 @@ def comment_on_pr(file, line, body, pr_number, repo, base_branch):
         "gh", "pr", "review", str(pr_number),
         "--repo", repo,
         "--comment",
-        "--body", comentario,
-        "--filename", file_path,
+        "--body", body,
+        "--filename", file,
         "--line", str(line)
     ])
 

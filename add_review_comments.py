@@ -49,7 +49,7 @@ def comment_on_pr(file, line, body, pr_number, repo, base_branch):
     print(f"💬 Comentando en {file}:{line} (posición diff: {position})")
     subprocess.run([
         "gh", "pr", "review", str(pr_number),
-        "--repo", github_repo,
+        "--repo", repo,
         "--comment",
         "--body", comentario,
         "--filename", file_path,

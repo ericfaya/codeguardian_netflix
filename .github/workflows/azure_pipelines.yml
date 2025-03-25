@@ -59,7 +59,7 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GH_TOKEN: ${{ secrets.TOKEN_GITHUB }}
-          BASE_BRANCH: ${{ github.event.pull_request.base.ref }}
+          BASE_BRANCH:  ${{ env.BASE_BRANCH }}
 
       - name: Verificar ejecución del JAR
         run: |

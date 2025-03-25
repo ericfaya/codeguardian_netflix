@@ -48,11 +48,12 @@ def comment_on_pr(file, line, body, pr_number, repo, base_branch):
 
     print(f"💬 Comentando en {file}:{line} (posición diff: {position})")
     subprocess.run([
-        "gh", "pr", "comment", str(pr_number),
-        "--repo", repo,
-        "--body", body,
-        "--path", file,
-        "--position", str(position)
+        "gh", "pr", "review", str(pr_number),
+        "--repo", github_repo,
+        "--comment",
+        "--body", comentario,
+        "--filename", file_path,
+        "--line", str(line)
     ])
 
 def main():

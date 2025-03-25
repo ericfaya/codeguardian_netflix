@@ -53,7 +53,7 @@ jobs:
             ${{ env.GROQMODEL }} \
             ${{ env.GITHUB_TOKEN }} \
             codeguardian_netflix \
-            ${{ env.PR_NUMBER }} > groq_output.json
+            ${{ env.PR_NUMBER }} 
             
 
       - name: Add dynamic review comments

@@ -69,5 +69,5 @@ def main():
             body = comment["body"]
             comment_on_pr(file, line, body, pr_number, repo)
 
-if _name_ == "_main_":
+if __name__ == "__main__":
     main()

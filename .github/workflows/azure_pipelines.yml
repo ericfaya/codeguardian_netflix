@@ -6,55 +6,49 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write  
+  pull-requests: write
 
 jobs:
   process-pull-request:
     runs-on: ubuntu-latest
 
     env:
-      GROQAPIKEY: ${{ secrets.GROQAPIKEY }} 
+      GROQAPIKEY: ${{ secrets.GROQAPIKEY }}
       GROQMODEL: ${{ secrets.GROQMODEL }}
       GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
-  
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Necesario para el git diff con ramas
 
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '21'
-          
-      - name: Check JAR permissions
-        run: |
-          ls -l codeguardian-0.0.1-SNAPSHOT.jar
+
+      - name: Fetch base branch
+        run: git fetch origin ${{ github.event.pull_request.base.ref }}
 
       - name: Get Pull Request Info
-        id: pr_info
         run: |
           echo "PR_NUMBER=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
-          echo "PR_BRANCH=${{ github.event.pull_request.head.ref }}" >> $GITHUB_ENV
+          echo "BASE_BRANCH=${{ github.event.pull_request.base.ref }}" >> $GITHUB_ENV
           echo "REPO_OWNER=${{ github.repository_owner }}" >> $GITHUB_ENV
-          echo "Número de PR: ${{ github.event.pull_request.number }}" 
-          echo "Branch: ${{ github.event.pull_request.head.ref }}"
-          echo "Owner: ${{ github.repository_owner }}" 
 
       - name: Check JAR existence
         run: ls -l codeguardian-0.0.1-SNAPSHOT.jar
 
       - name: Run JAR with Pull Request Information
         run: |
-          # Asumiendo que el JAR está en el repositorio o lo descargas en un paso previo
-          # Ajusta la ruta a tu JAR según sea necesario
-            java -jar codeguardian-0.0.1-SNAPSHOT.jar  \
+          java -jar codeguardian-0.0.1-SNAPSHOT.jar  \
             ${{ env.GROQAPIKEY }} \
             ${{ env.GROQMODEL }} \
             ${{ env.GITHUB_TOKEN }} \
             codeguardian_netflix \
-            ${{ env.PR_NUMBER }} 
-            
+            ${{ env.PR_NUMBER }}
 
       - name: Instalar dependencias para diff parsing
         run: pip install --upgrade pip
@@ -65,16 +59,14 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GH_TOKEN: ${{ secrets.TOKEN_GITHUB }}
-          
-      # Opcionalmente, puedes agregar un paso para verificar el resultado del JAR
-      - name: Verify JAR Execution
+          BASE_BRANCH: ${{ github.event.pull_request.base.ref }}
+
+      - name: Verificar ejecución del JAR
         run: |
-          # Aquí puedes verificar si el JAR se ejecutó correctamente
-          # Por ejemplo, comprobar un archivo de salida o código de retorno
           if [ $? -eq 0 ]; then
-            echo "JAR ejecutado exitosamente"
+            echo "✅ JAR ejecutado exitosamente"
             exit 0
           else
-            echo "Error en la ejecución del JAR"
+            echo "❌ Error en la ejecución del JAR"
             exit 1
           fi

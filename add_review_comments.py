@@ -74,7 +74,7 @@ for file_entry in data:
                 '-f', f'line={line}',
                 '-f', 'side=RIGHT'
             ], capture_output=True, text=True)
-            if result.returncode != 0
+            if result.returncode != 0:
                 print(f"Error en la API de github: {result.stderr}")
                 return ValueError(f"Hubo un error al public el comentario en GitHub.")
 

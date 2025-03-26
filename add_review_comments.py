@@ -5,7 +5,9 @@ import subprocess
 # Cargar los datos del archivo JSON
 with open('groq_output.json', 'r') as f:
     data = json.load(f)
+
 print(json.dumps(data, indent=2))
+
 # Obtener las variables de entorno necesarias
 pr_number = os.environ.get('PR_NUMBER')
 repo = os.environ.get('GITHUB_REPOSITORY')
@@ -43,12 +45,11 @@ def validate_comment_data(comment):
 # Realizar los comentarios
 for file_entry in data:
     print(f"Revisando archivo: {file_entry}")
-    path = file_entry.get('file',None)
+    path = file_entry.get('file', None)
     if not path:
         print(f"Error: 'file' no encontrado en la entrada {file_entry}")
         continue
 
-    #path = file_entry['file']
     for comment in file_entry['comments']:
         try:
             validate_comment_data(comment)  # Validar datos del comentario
@@ -58,7 +59,7 @@ for file_entry in data:
             print(f"💬 Comentando en {path} línea {line}: {body}")
 
             # Realizar el comentario en GitHub
-            subprocess.run([
+            result = subprocess.run([
                 'gh', 'api',
                 '-X', 'POST',
                 '-H', 'Accept: application/vnd.github+json',
@@ -68,6 +69,12 @@ for file_entry in data:
                 '-f', f'path={path}',
                 '-f', f'line={line}',
                 '-f', 'side=RIGHT'
-            ])
+            ], capture_output=True, text=True)
+
+            # Imprimir la respuesta de la API para verificar si todo fue exitoso
+            print("Respuesta de la API:")
+            print(result.stdout)
+            print(result.stderr)
+
         except ValueError as e:
             print(f"Error al comentar: {e}")  # Mostrar errores de validación

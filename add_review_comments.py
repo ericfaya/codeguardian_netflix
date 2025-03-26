@@ -2,37 +2,66 @@ import json
 import os
 import subprocess
 
+# Cargar los datos del archivo JSON
 with open('groq_output.json', 'r') as f:
     data = json.load(f)
 
-pr_number = os.environ['PR_NUMBER']
-repo = os.environ['GITHUB_REPOSITORY']
-owner, repo_name = repo.split('/')
-base_branch = os.environ['BASE_BRANCH']
+# Obtener las variables de entorno necesarias
+pr_number = os.environ.get('PR_NUMBER')
+repo = os.environ.get('GITHUB_REPOSITORY')
+base_branch = os.environ.get('BASE_BRANCH')
 
-# Obtenemos el SHA del último commit en el PR
+# Verificar que todas las variables de entorno estén presentes
+if not pr_number or not repo or not base_branch:
+    raise ValueError("Faltan variables de entorno: PR_NUMBER, GITHUB_REPOSITORY o BASE_BRANCH.")
+
+owner, repo_name = repo.split('/')
+
+# Función para obtener el commit SHA
 def get_latest_commit_sha():
     sha = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode('utf-8').strip()
+    if not sha:
+        raise ValueError("No se pudo obtener el commit SHA.")
     return sha
 
 commit_sha = get_latest_commit_sha()
 
+# Validación para los comentarios
+def validate_comment_data(comment):
+    # Validar que 'line' sea un número entero
+    if not isinstance(comment['line'], int):
+        raise ValueError(f"Línea no válida: {comment['line']}. Debe ser un entero.")
+    
+    # Validar que 'body' no esté vacío
+    if not comment['body']:
+        raise ValueError(f"Comentario vacío en la línea {comment['line']}.")
+
+    # Validar que 'path' no esté vacío
+    if not comment.get('path'):
+        raise ValueError(f"El archivo no está especificado para el comentario en la línea {comment['line']}.")
+
+# Realizar los comentarios
 for file_entry in data:
     path = file_entry['file']
     for comment in file_entry['comments']:
-        line = comment['line']
-        body = comment['body']
+        try:
+            validate_comment_data(comment)  # Validar datos del comentario
+            line = comment['line']
+            body = comment['body']
 
-        print(f"💬 Comentando en {path} línea {line}: {body}")
+            print(f"💬 Comentando en {path} línea {line}: {body}")
 
-        subprocess.run([
-            'gh', 'api',
-            '-X', 'POST',
-            '-H', 'Accept: application/vnd.github+json',
-            f'/repos/{owner}/{repo_name}/pulls/{pr_number}/comments',
-            '-f', f'body={body}',
-            '-f', f'commit_id={commit_sha}',
-            '-f', f'path={path}',
-            '-f', f'line={line}',
-            '-f', 'side=RIGHT'
-        ])
+            # Realizar el comentario en GitHub
+            subprocess.run([
+                'gh', 'api',
+                '-X', 'POST',
+                '-H', 'Accept: application/vnd.github+json',
+                f'/repos/{owner}/{repo_name}/pulls/{pr_number}/comments',
+                '-f', f'body={body}',
+                '-f', f'commit_id={commit_sha}',
+                '-f', f'path={path}',
+                '-f', f'line={line}',
+                '-f', 'side=RIGHT'
+            ])
+        except ValueError as e:
+            print(f"Error al comentar: {e}")  # Mostrar errores de validación

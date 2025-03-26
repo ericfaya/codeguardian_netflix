@@ -5,7 +5,7 @@ import subprocess
 # Cargar los datos del archivo JSON
 with open('groq_output.json', 'r') as f:
     data = json.load(f)
-
+print(json.dumps(data, indent=2))
 # Obtener las variables de entorno necesarias
 pr_number = os.environ.get('PR_NUMBER')
 repo = os.environ.get('GITHUB_REPOSITORY')
@@ -42,7 +42,13 @@ def validate_comment_data(comment):
 
 # Realizar los comentarios
 for file_entry in data:
-    path = file_entry['file']
+    print(f"Revisando archivo: {file_entry}")
+    path = file_entry.get('file',None)
+    if not path:
+        print(f"Error: 'file' no encontrado en la entrada {file_entry}")
+        continue
+
+    #path = file_entry['file']
     for comment in file_entry['comments']:
         try:
             validate_comment_data(comment)  # Validar datos del comentario

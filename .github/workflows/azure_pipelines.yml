@@ -21,7 +21,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Necesario para el git diff con ramas
+          fetch-depth: 2  # Necesario para el git diff con ramas
 
       - name: Set up JDK
         uses: actions/setup-java@v3

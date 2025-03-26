@@ -1,70 +1,38 @@
 import json
-import subprocess
 import os
-import sys
+import subprocess
 
-PR_NUMBER = os.environ.get("PR_NUMBER")
-BASE_BRANCH = os.environ.get("BASE_BRANCH", "main")
+with open('groq_output.json', 'r') as f:
+    data = json.load(f)
 
-if not PR_NUMBER:
-    print("❌ No PR_NUMBER definido.")
-    sys.exit(1)
+pr_number = os.environ['PR_NUMBER']
+repo = os.environ['GITHUB_REPOSITORY']
+owner, repo_name = repo.split('/')
+base_branch = os.environ['BASE_BRANCH']
 
-json_file = "groq_output.json"
+# Obtenemos el SHA del último commit en el PR
+def get_latest_commit_sha():
+    sha = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode('utf-8').strip()
+    return sha
 
-try:
-    with open(json_file) as f:
-        data = json.load(f)
-except FileNotFoundError:
-    print(f"❌ No se encontró {json_file}")
-    sys.exit(1)
-
-def get_diff_position(file_path, target_line):
-    result = subprocess.run(
-        ["git", "diff", f"origin/{BASE_BRANCH}...HEAD", "--", file_path],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True
-    )
-    lines = result.stdout.splitlines()
-    current_line = 0
-    position = None
-
-    for i, line in enumerate(lines):
-        if line.startswith("@@"):
-            parts = line.split(" ")
-            if len(parts) > 2:
-                new_range = parts[2]
-                if "," in new_range:
-                    start = int(new_range[1:].split(",")[0])
-                else:
-                    start = int(new_range[1:])
-                current_line = start
-        elif line.startswith("+") and not line.startswith("+++"):
-            if current_line == target_line:
-                position = i + 1  # 1-based diff index
-                break
-            current_line += 1
-        elif not line.startswith("-"):
-            current_line += 1
-
-    return position
+commit_sha = get_latest_commit_sha()
 
 for file_entry in data:
-    file_path = file_entry["file"]
-    for comment in file_entry["comments"]:
-        line = comment["line"]
-        body = comment["body"]
-        pos = get_diff_position(file_path, line)
+    path = file_entry['file']
+    for comment in file_entry['comments']:
+        line = comment['line']
+        body = comment['body']
 
-        if pos is None:
-            print(f"⚠️  No se encontró posición en el diff para {file_path}:{line}")
-            continue
+        print(f"💬 Comentando en {path} línea {line}: {body}")
 
-        print(f"💬 Comentario en {file_path}:{line} (posición {pos})")
         subprocess.run([
-            "gh", "pr", "comment", str(PR_NUMBER),
-            "--body", body,
-            "--path", file_path,
-            "--position", str(pos)
+            'gh', 'api',
+            '-X', 'POST',
+            '-H', 'Accept: application/vnd.github+json',
+            f'/repos/{owner}/{repo_name}/pulls/{pr_number}/comments',
+            '-f', f'body={body}',
+            '-f', f'commit_id={commit_sha}',
+            '-f', f'path={path}',
+            '-f', f'line={line}',
+            '-f', 'side=RIGHT'
         ])

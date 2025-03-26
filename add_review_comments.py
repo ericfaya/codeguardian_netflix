@@ -8,6 +8,9 @@ with open('groq_output.json', 'r') as f:
 
 print(json.dumps(data, indent=2))
 
+if not isinstance(data, list):
+    raise ValueError("El archivo JSON no tiene el formato esperado. Se esperaba una lista.")
+
 # Obtener las variables de entorno necesarias
 pr_number = os.environ.get('PR_NUMBER')
 repo = os.environ.get('GITHUB_REPOSITORY')
@@ -30,6 +33,7 @@ commit_sha = get_latest_commit_sha()
 
 # Validación para los comentarios
 def validate_comment_data(comment):
+    print(f"Validando comentario: {comment}")
     # Validar que 'line' sea un número entero
     if not isinstance(comment['line'], int):
         raise ValueError(f"Línea no válida: {comment['line']}. Debe ser un entero.")
@@ -70,6 +74,9 @@ for file_entry in data:
                 '-f', f'line={line}',
                 '-f', 'side=RIGHT'
             ], capture_output=True, text=True)
+            if result.returncode != 0
+                print(f"Error en la API de github: {result.stderr}")
+                return ValueError(f"Hubo un error al public el comentario en GitHub.")
 
             # Imprimir la respuesta de la API para verificar si todo fue exitoso
             print("Respuesta de la API:")

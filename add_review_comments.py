@@ -76,7 +76,7 @@ for file_entry in data:
             ], capture_output=True, text=True)
             if result.returncode != 0:
                 print(f"Error en la API de github: {result.stderr}")
-                return ValueError(f"Hubo un error al public el comentario en GitHub.")
+                raise ValueError(f"Hubo un error al public el comentario en GitHub.")
 
             # Imprimir la respuesta de la API para verificar si todo fue exitoso
             print("Respuesta de la API:")

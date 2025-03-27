@@ -65,14 +65,14 @@ for file_entry in data:
             # Realizar el comentario en GitHub
             result = subprocess.run([
                 'gh', 'api',
-                '-X', 'POST',
-                '-H', 'Accept: application/vnd.github+json',
                 f'/repos/{owner}/{repo_name}/pulls/{pr_number}/comments',
-                '-f', f'body={body}',
-                '-f', f'commit_id={commit_sha}',
-                '-f', f'path={path}',
-                '-f', f'line={line}',
-                '-f', 'side=RIGHT'
+                '--method', 'POST',
+                '--header', 'Accept: application/vnd.github+json',
+                '--field', f'body={body}',
+                '--field', f'commit_id={commit_sha}',
+                '--field', f'path={path}',
+                '--field', f'line={line}',
+                '--field', 'side=RIGHT'
             ], capture_output=True, text=True)
             if result.returncode != 0:
                 print(f"Error en la API de github: {result.stderr}")

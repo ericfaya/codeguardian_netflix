@@ -50,23 +50,6 @@ jobs:
             codeguardian_netflix \
             ${{ env.PR_NUMBER }}
 
-      - name: Verificar las variables de entorno
-        run: |
-          echo "PR_NUMBER=${{ github.event.pull_request.number }}"
-          echo "GITHUB_REPOSITORY=${{ github.repository }}"
-          echo "BASE_BRANCH=${{ github.event.pull_request.base.ref }}"
-          
-      - name: Instalar dependencias para diff parsing
-        run: pip install --upgrade pip
-
-      - name: Añadir comentarios de revisión con posiciones reales
-        run: python add_review_comments.py
-        env:
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
-          BASE_BRANCH: ${{ github.event.pull_request.base.ref }}
-
       - name: Verificar ejecución del JAR
         run: |
           if [ $? -eq 0 ]; then

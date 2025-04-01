@@ -8,7 +8,7 @@ spring:
     name: netflix-guillem
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
+    url: jdbc:postgresql://localhost:8080/postgres
     username: root
     password: Gg08112024
     driver-class-name: org.postgresql.Driver
